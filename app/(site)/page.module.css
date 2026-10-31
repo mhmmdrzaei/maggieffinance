@@ -155,23 +155,53 @@
   }
 }
 
-/* Small screens: full-width text on a solid background so the image doesn't sit behind it */
+/* Small screens: full-width text, with the photo in an arched frame above it */
 @media (max-width: 768px) {
   .main {
     padding-right: var(--padding);
   }
   .content {
     margin-right: 0;
-    padding: calc(var(--padding) * 0.75);
-    background-color: var(--bg);
   }
-  .content > :first-child {
-    margin-top: 0;
+  .frame {
+    --arch: 999px 999px 0 0;
+    --offset: 8px;
+    order: -1;
+    position: relative;
+    align-self: flex-start;
+    /* also capped by screen height for phones in landscape */
+    width: min(62%, 300px, 45vh);
+    /* leave room for the outline around the photo */
+    margin: calc(var(--padding) * 2 + var(--offset)) 0 var(--offset) calc(var(--padding) + var(--offset));
   }
-  .content > :last-child {
-    margin-bottom: 0;
+  /* outline around the photo, with a small gap */
+  .frame::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--offset) * -1);
+    border: 1.5px solid #54a60a;
+    border-radius: var(--arch);
+  }
+  .picture {
+    position: relative;
+    top: auto;
+    right: auto;
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: center;
+    border-radius: var(--arch);
   }
   .footer {
     font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  /* the photo now provides the space above the text */
+  .main {
+    padding-top: calc(var(--padding) * 1.5);
   }
 }

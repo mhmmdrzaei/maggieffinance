@@ -4,6 +4,9 @@ import {Footer, RichText} from './components'
 import styles from './page.module.css'
 
 const widths = [640, 828, 1080, 1280, 1600, 1920, 2400]
+// Small screens get a portrait crop centred on the hotspot set in the Studio
+const mobileWidths = [320, 480, 640, 960]
+const mobileRatio = 5 / 4
 
 function BackgroundImage({image}: {image: SanityImage}) {
   const dims = image.asset?.metadata?.dimensions
@@ -16,25 +19,40 @@ function BackgroundImage({image}: {image: SanityImage}) {
   const aspect = w / h
 
   const srcSet = widths.map((width) => `${urlFor(image).width(width).quality(80).url()} ${width}w`).join(', ')
+  const mobileSrcSet = mobileWidths
+    .map((width) => {
+      const url = urlFor(image).width(width).height(Math.round(width * mobileRatio)).fit('crop').quality(80).url()
+      return `${url} ${width}w`
+    })
+    .join(', ')
   const style = {
     backgroundImage: image.asset.metadata?.lqip ? `url(${image.asset.metadata.lqip})` : undefined,
     '--focus': image.hotspot ? `${image.hotspot.x * 100}% ${image.hotspot.y * 100}%` : undefined,
   } as React.CSSProperties
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- served & resized by Sanity's image CDN
-    <img
-      className={styles.picture}
-      src={urlFor(image).width(1600).quality(80).url()}
-      srcSet={srcSet}
-      sizes={`(orientation: portrait) 100vw, calc(100vh * ${aspect.toFixed(3)})`}
-      width={Math.round(w)}
-      height={Math.round(h)}
-      alt={image.alt ?? ''}
-      fetchPriority="high"
-      decoding="async"
-      style={style}
-    />
+    <picture className={styles.frame}>
+      <source
+        media="(max-width: 768px)"
+        srcSet={mobileSrcSet}
+        sizes="min(60vw, 300px)"
+        width={960}
+        height={Math.round(960 * mobileRatio)}
+      />
+      {/* Served and resized by Sanity's image CDN */}
+      <img
+        className={styles.picture}
+        src={urlFor(image).width(1600).quality(80).url()}
+        srcSet={srcSet}
+        sizes={`(orientation: portrait) 100vw, calc(100vh * ${aspect.toFixed(3)})`}
+        width={Math.round(w)}
+        height={Math.round(h)}
+        alt={image.alt ?? ''}
+        fetchPriority="high"
+        decoding="async"
+        style={style}
+      />
+    </picture>
   )
 }
 
