@@ -1,0 +1,177 @@
+.container {
+  --height: 100vh;
+  --padding: 3vw;
+  display: flex;
+  flex-direction: column;
+  /* fill the visible screen so the footer sits at the bottom */
+  min-height: 100vh;
+}
+
+@supports (height: 100svh) {
+  .container {
+    min-height: 100svh;
+  }
+}
+
+@supports (height: 100lvh) {
+  .container {
+    --height: 100lvh;
+  }
+}
+
+@media (orientation: portrait) {
+  .container {
+    --padding: 3vh;
+    height: auto !important;
+  }
+  @supports (height: 100lvh) {
+    .container {
+      --padding: 3lvh;
+    }
+  }
+}
+
+.container ::selection {
+  background: grey;
+}
+
+.main {
+  padding: var(--padding) calc(var(--padding) * 6.66);
+  padding-left: var(--padding);
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  max-width: 1288px;
+  /* matches the spacing of the original (empty) 6vw heading */
+  margin: 4.02vw 23vw 0 0;
+  font-size: calc(var(--padding) * 0.66);
+  white-space: pre-line;
+}
+
+@media (min-width: 1888px) {
+  .content {
+    font-size: calc(var(--padding) * 0.5);
+    max-width: 39vw;
+  }
+}
+
+.picture {
+  height: var(--height);
+  width: auto;
+  position: fixed;
+  top: 0;
+  right: -10vw;
+  object-fit: cover;
+  object-position: right 30%;
+  background-size: cover;
+  background-position: right 30%;
+}
+
+.footer {
+  position: relative;
+  z-index: 2;
+  /* pinned to the bottom of the screen, pushed down by long content */
+  margin-top: auto;
+  padding: var(--padding);
+  font-size: 1.25vw;
+}
+
+.footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--padding) * 0.5) calc(var(--padding) * 2);
+}
+
+@media (min-width: 1888px) {
+  .footer {
+    font-size: 1vw;
+  }
+}
+
+@media (orientation: portrait) {
+  .main {
+    padding: var(--padding);
+    /* original had an empty static nav above the text in portrait */
+    padding-top: calc(var(--padding) * 3);
+  }
+  .content {
+    font-size: calc(var(--padding) * 0.88);
+    line-height: 1.36;
+  }
+  .footer {
+    position: relative;
+    top: 0;
+    font-size: 1rem;
+  }
+  .footer nav {
+    gap: calc(var(--padding) * 0.5) var(--padding);
+  }
+  .picture {
+    width: 100%;
+    right: auto;
+    object-position: var(--focus, 45% 30%);
+    background-position: var(--focus, 45% 30%);
+  }
+}
+
+/* Newsletter page */
+.form .content {
+  margin-right: 0;
+}
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  gap: 1vw;
+  padding: calc(var(--padding) * 0.666) var(--padding);
+}
+
+.button {
+  cursor: pointer;
+  display: inline-block;
+  border: none;
+  background: transparent;
+  color: currentColor;
+  font-size: 1em;
+  padding: 0;
+}
+
+@media (orientation: portrait) {
+  .nav {
+    position: static;
+    align-items: center;
+    padding: var(--padding);
+  }
+  /* the static nav already provides the top spacing */
+  .form .main {
+    padding-top: var(--padding);
+  }
+}
+
+/* Small screens: full-width text on a solid background so the image doesn't sit behind it */
+@media (max-width: 768px) {
+  .main {
+    padding-right: var(--padding);
+  }
+  .content {
+    margin-right: 0;
+    padding: calc(var(--padding) * 0.75);
+    background-color: var(--bg);
+  }
+  .content > :first-child {
+    margin-top: 0;
+  }
+  .content > :last-child {
+    margin-bottom: 0;
+  }
+  .footer {
+    font-size: 1rem;
+  }
+}
