@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Maggie Flynn Finance
 
-## Getting Started
+Next.js 16 + Sanity 6. The Studio is embedded at `/studio`.
 
-First, run the development server:
+The home page is **fully static**. It is only regenerated when:
+
+1. Content is published in Sanity (webhook → `/api/revalidate` → `revalidateTag`), or
+2. A new commit is pushed to GitHub (Vercel redeploys).
+
+There is no time-based revalidation, images are served and resized by Sanity's CDN (no Vercel
+image optimization), and the font is self-hosted.
+
+## 1. Sanity project
+
+1. Create a project at <https://www.sanity.io/manage> (or `npx sanity@latest init --bare`), with a `production` dataset.
+2. Copy `.env.example` to `.env.local` and fill in the project ID and a long random `SANITY_REVALIDATE_SECRET`
+   (e.g. `openssl rand -hex 32`).
+3. In **API → CORS origins**, add with *Allow credentials* checked:
+   - `http://localhost:3000`
+   - your Vercel URL(s) / custom domain
+
+## 2. Local dev
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000/studio>, fill in the Home Page and publish.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 3. Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Push the repo to GitHub and import it in Vercel (framework preset: Next.js, no extra config).
+2. Add the three env vars from `.env.example` to the Vercel project.
+3. Deploy.
 
-## Learn More
+## 4. Sanity webhook (content updates without a redeploy)
 
-To learn more about Next.js, take a look at the following resources:
+In <https://www.sanity.io/manage> → **API → Webhooks → Create webhook**:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Setting      | Value                                         |
+| ------------ | --------------------------------------------- |
+| URL          | `https://<your-domain>/api/revalidate`        |
+| Dataset      | `production`                                  |
+| Trigger on   | Create, Update, Delete                        |
+| Filter       | `_type in ["homePage", "formPage"]`           |
+| Projection   | `{_type}`                                     |
+| HTTP method  | POST                                          |
+| Secret       | same value as `SANITY_REVALIDATE_SECRET`      |
+| API version  | latest                                        |
+| Drafts       | off                                           |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+After publishing in the Studio the live site updates within a few seconds.
